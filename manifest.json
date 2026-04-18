@@ -2,7 +2,7 @@
   "name": "FitTimer",
   "short_name": "FitTimer",
   "description": "Інтервальний таймер для тренувань",
-  "start_url": "/fittimer/",
+  "start_url": ".",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f4f4f6",
