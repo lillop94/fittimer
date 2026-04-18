@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FitTimer">
+<meta name="theme-color" content="#1D9E75">
+
+<title>FitTimer</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/idb@8/build/umd.js"></script>
+</head>
+<body>
+<div class="phone" id="phone" data-theme="forest">
+
+<!-- ══════════════════ HOME ══════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="topbar" style="justify-content:center;">
+    <span class="topbar-title">FitTimer</span>
+  </div>
+  <div class="screen-body">
+    <div class="menu-list">
+      <div class="menu-item" onclick="openWorkouts()">
+        <div class="menu-icon icon-green">💪</div>
+        <div>
+          <div class="menu-label">Тренування</div>
+          <div class="menu-sub" id="home-workout-count">Завантаження...</div>
+        </div>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item" onclick="show('screen-music')">
+        <div class="menu-icon icon-purple">🎵</div>
+        <div>
+          <div class="menu-label">Музика</div>
+          <div class="menu-sub" id="home-music-count">Немає треків</div>
+        </div>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item" onclick="show('screen-themes')">
+        <div class="menu-icon" style="background:#fdeef5;">🎨</div>
+        <div>
+          <div class="menu-label">Тема</div>
+          <div class="menu-sub" id="home-theme-name">Forest</div>
+        </div>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item" onclick="show('screen-settings')">
+        <div class="menu-icon icon-blue">⚙️</div>
+        <div>
+          <div class="menu-label">Налаштування</div>
+          <div class="menu-sub">Звук, сигнали</div>
+        </div>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item" onclick="openHistory()">
+        <div class="menu-icon icon-amber">📋</div>
+        <div>
+          <div class="menu-label">Історія</div>
+          <div class="menu-sub" id="home-history-count">Немає записів</div>
+        </div>
+        <span class="menu-arrow">›</span>
+      </div>
+      <div class="menu-item" style="opacity:0.4;cursor:default;">
+        <div class="menu-icon icon-blue">🔔</div>
+        <div>
+          <div class="menu-label">Нагадування</div>
+          <div class="menu-sub">Незабаром...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ WORKOUTS ══════════════════ -->
+<div class="screen" id="screen-workouts">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <span class="topbar-title">Тренування</span>
+    <button class="topbar-action" onclick="openEdit(null)">+ Нове</button>
+  </div>
+  <div class="screen-body">
+    <div class="workout-list" id="workout-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ EDIT ══════════════════ -->
+<div class="screen" id="screen-edit">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('screen-workouts')">‹</button>
+    <span class="topbar-title" id="edit-title">Нове тренування</span>
+    <button class="topbar-action" onclick="saveWorkout()">Зберегти</button>
+  </div>
+  <div class="screen-body">
+    <div class="edit-screen">
+      <div class="section-label">Основне</div>
+      <div class="edit-card">
+        <div class="edit-row">
+          <div class="edit-label">Назва</div>
+          <input class="workout-name-input" id="edit-name" type="text" placeholder="Моє тренування" maxlength="40">
+        </div>
+      </div>
+
+      <div class="section-label">Режим підходу</div>
+      <div class="edit-card">
+        <div class="edit-row">
+          <div>
+            <div class="edit-label">Тип виконання</div>
+            <div class="edit-sub" id="mode-sub">Підхід на час</div>
+          </div>
+          <div class="mode-switcher">
+            <button class="mode-tab active" id="mode-tab-timer" onclick="setWorkoutMode('timer')">⏱ Таймер</button>
+            <button class="mode-tab" id="mode-tab-reps" onclick="setWorkoutMode('reps')">🔢 Повтор.</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Підготовка</div>
+      <div class="edit-card">
+        <div class="edit-row">
+          <div>
+            <div class="edit-label">Фаза підготовки</div>
+            <div class="edit-sub">Час зайняти позицію перед стартом</div>
+          </div>
+          <button class="toggle on" id="prep-toggle" onclick="togglePrep()"></button>
+        </div>
+        <div class="edit-row" id="prep-row-time">
+          <div class="edit-label">Тривалість (сек)</div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('prep',-5)">−</button>
+            <span class="step-val" id="prep-val">10</span>
+            <button class="step-btn" onclick="change('prep',5)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Інтервали</div>
+      <div class="edit-card">
+        <div class="edit-row" id="edit-row-work">
+          <div class="edit-label">Робота (сек)</div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('work',-5)">−</button>
+            <span class="step-val" id="work-val">45</span>
+            <button class="step-btn" onclick="change('work',5)">+</button>
+          </div>
+        </div>
+        <div class="edit-row" id="edit-row-reps" style="display:none;">
+          <div class="edit-label">Повторень за підхід</div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('reps',-1)">−</button>
+            <span class="step-val" id="reps-val">10</span>
+            <button class="step-btn" onclick="change('reps',1)">+</button>
+          </div>
+        </div>
+        <div class="edit-row">
+          <div class="edit-label">Відпочинок (сек)</div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('rest',-5)">−</button>
+            <span class="step-val" id="rest-val">15</span>
+            <button class="step-btn" onclick="change('rest',5)">+</button>
+          </div>
+        </div>
+        <div class="edit-row">
+          <div class="edit-label">Підходи</div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('sets',-1)">−</button>
+            <span class="step-val" id="sets-val">8</span>
+            <button class="step-btn" onclick="change('sets',1)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" id="bigrest-section-label">Великий перерив</div>
+      <div class="edit-card" id="bigrest-section">
+        <div class="edit-row">
+          <div>
+            <div class="edit-label">Активувати</div>
+            <div class="edit-sub">Довгий відпочинок кожні N підходів</div>
+          </div>
+          <button class="toggle on" id="bigrest-toggle" onclick="toggleBigRest()"></button>
+        </div>
+        <div class="edit-row" id="bigrest-row-after">
+          <div><div class="edit-label">Після кожних підходів</div></div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('bigrest',-1)">−</button>
+            <span class="step-val" id="bigrest-val">4</span>
+            <button class="step-btn" onclick="change('bigrest',1)">+</button>
+          </div>
+        </div>
+        <div class="edit-row" id="bigrest-row-time">
+          <div class="edit-label">Тривалість (сек)</div>
+          <div class="stepper">
+            <button class="step-btn" onclick="change('bigresttime',-5)">−</button>
+            <span class="step-val" id="bigresttime-val">60</span>
+            <button class="step-btn" onclick="change('bigresttime',5)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Сигнали</div>
+      <div class="edit-card">
+        <div class="edit-row">
+          <div>
+            <div class="edit-label">Сигнал на середині</div>
+            <div class="edit-sub">Попередження на 50% часу</div>
+          </div>
+          <button class="toggle on" id="mid-toggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+      </div>
+
+      <div id="phase-music-section">
+        <div class="section-label">Фазова музика</div>
+        <div class="edit-card">
+          <div class="edit-row">
+            <div>
+              <div class="edit-label">Окремі треки для фаз</div>
+              <div class="edit-sub">Плеєр вимкнеться під час тренування</div>
+            </div>
+            <button class="toggle" id="phasetracks-toggle" onclick="togglePhaseTracks()"></button>
+          </div>
+        </div>
+        <div class="edit-card" id="phasetracks-card" style="opacity:0.45;pointer-events:none;">
+          <div class="track-picker">
+            <div class="track-picker-label">💪 Робота</div>
+            <div class="track-picker-val disabled" id="pt-work-label" onclick="openTrackModal('work')">Не обрано</div>
+          </div>
+          <div class="track-picker">
+            <div class="track-picker-label">😮‍💨 Відпочинок</div>
+            <div class="track-picker-val disabled" id="pt-rest-label" onclick="openTrackModal('rest')">Не обрано</div>
+          </div>
+          <div class="track-picker" id="pt-bigrest-row">
+            <div class="track-picker-label">🏋️ Вел. перерив</div>
+            <div class="track-picker-val disabled" id="pt-bigrest-label" onclick="openTrackModal('bigrest')">Не обрано</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:24px;"></div>
+      <button class="done-btn" onclick="saveAndStart()">▶ Зберегти та запустити</button>
+      <div style="height:16px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- track modal -->
+<div class="track-modal-overlay" id="track-modal-overlay">
+  <div class="track-modal">
+    <div class="track-modal-header">
+      <span class="track-modal-title" id="track-modal-title">Обрати трек</span>
+      <button class="track-modal-close" onclick="closeTrackModal()">✕</button>
+    </div>
+    <div class="track-modal-list" id="track-modal-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ TIMER ══════════════════ -->
+<div class="screen" id="screen-timer">
+  <div class="topbar">
+    <button class="back-btn" onclick="stopTimer();stopMusic();stopPhaseAudio();show('screen-workouts')">‹</button>
+    <span class="topbar-title" id="timer-title">Таймер</span>
+  </div>
+  <div class="timer-screen">
+    <div class="timer-header">
+      <div class="timer-workout-name" id="timer-workout-name">—</div>
+      <div class="timer-phase" id="phase-label">—</div>
+    </div>
+    <div class="phase-banner prep" id="prep-banner">🧘 Займіть позицію</div>
+    <div class="phase-banner bigrest" id="bigrest-banner">🏋️ Великий перерив</div>
+    <div class="music-player" id="music-player">
+      <span style="font-size:16px;">🎵</span>
+      <span class="music-track-name" id="mini-track-name">—</span>
+      <button class="music-ctrl" onclick="prevTrack()">⏮</button>
+      <button class="music-ctrl" id="mini-play-btn" onclick="toggleMusicPlay()">⏸</button>
+      <button class="music-ctrl" onclick="nextTrack()">⏭</button>
+    </div>
+    <div class="timer-circle-wrap">
+      <div class="timer-circle">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle class="timer-circle-bg" cx="100" cy="100" r="88"/>
+          <circle class="timer-circle-progress" id="progress-ring"
+            cx="100" cy="100" r="88" stroke="#1D9E75"
+            stroke-dasharray="553" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-time">
+          <div class="timer-seconds" id="timer-display">—</div>
+          <div class="timer-label" id="timer-sublabel">секунд</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:auto; display:flex; flex-direction:column; gap:20px;">
+      <div class="timer-sets" id="sets-dots"></div>
+      <div class="timer-controls">
+        <button class="ctrl-btn" onclick="restartTimer()" title="Спочатку">↺</button>
+        <button class="ctrl-btn primary" id="play-btn" onclick="toggleTimer()">▶</button>
+        <button class="ctrl-btn" onclick="skipPhase()" title="Пропустити">⏭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ REPS ══════════════════ -->
+<div class="screen" id="screen-reps">
+  <div class="topbar">
+    <button class="back-btn" onclick="stopRepsTimer();stopMusic();show('screen-workouts')">‹</button>
+    <span class="topbar-title" id="reps-title">Таймер</span>
+  </div>
+  <div class="reps-screen">
+    <div class="reps-header">
+      <div class="timer-workout-name" id="reps-workout-name">—</div>
+      <div class="reps-set-info" id="reps-set-info">Підхід 1 з 8</div>
+    </div>
+    <div class="phase-banner prep" id="reps-prep-banner">🧘 Займіть позицію</div>
+    <div class="music-player" id="reps-music-player">
+      <span style="font-size:16px;">🎵</span>
+      <span class="music-track-name" id="reps-mini-track-name">—</span>
+      <button class="music-ctrl" onclick="prevTrack()">⏮</button>
+      <button class="music-ctrl" id="reps-mini-play-btn" onclick="toggleMusicPlay()">⏸</button>
+      <button class="music-ctrl" onclick="nextTrack()">⏭</button>
+    </div>
+    <div class="reps-counter-wrap">
+      <div class="timer-circle" id="reps-counter">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle class="timer-circle-bg" cx="100" cy="100" r="88"/>
+          <circle class="timer-circle-progress" id="reps-progress-ring"
+            cx="100" cy="100" r="88" stroke="#1D9E75"
+            stroke-dasharray="553" stroke-dashoffset="553"/>
+        </svg>
+        <div class="timer-time">
+          <div class="timer-seconds" id="reps-display">10</div>
+          <div class="timer-label" id="reps-sublabel">повторень</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px;">
+      <div class="timer-sets" id="reps-dots"></div>
+      <div class="reps-adjust" id="reps-adjust-btns">
+        <button class="reps-adj-btn" onclick="adjustReps(-1)">−</button>
+        <button class="reps-adj-btn" onclick="adjustReps(1)">+</button>
+      </div>
+      <button class="reps-done-btn" id="reps-done-btn" onclick="repsDone()">✓ Виконано</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ DONE ══════════════════ -->
+<div class="screen" id="screen-done">
+  <div class="topbar" style="justify-content:center;">
+    <span class="topbar-title">Результат</span>
+  </div>
+  <div class="done-screen">
+    <div class="done-emoji">🏆</div>
+    <div class="done-title">Тренування завершено!</div>
+    <div class="done-subtitle" id="done-subtitle">Чудова робота!</div>
+    <div class="done-stats">
+      <div style="text-align:center;">
+        <div class="done-stat-val" id="done-sets">0</div>
+        <div class="done-stat-label">підходів</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="done-stat-val" id="done-time">0:00</div>
+        <div class="done-stat-label">загальний час</div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="replayWorkout()">↺ Ще раз</button>
+    <button class="done-btn secondary" onclick="show('screen-workouts')">← До тренувань</button>
+  </div>
+</div>
+
+<!-- ══════════════════ HISTORY ══════════════════ -->
+<div class="screen" id="screen-history">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <span class="topbar-title">Історія</span>
+    <button class="topbar-action" style="color:var(--red);font-size:12px;" onclick="clearHistory()">Очистити</button>
+  </div>
+  <div class="screen-tabs">
+    <button class="screen-tab active" id="tab-calendar" onclick="switchHistoryTab('calendar')">📅 Графік</button>
+    <button class="screen-tab" id="tab-list" onclick="switchHistoryTab('list')">📋 Список</button>
+  </div>
+  <div id="history-tab-calendar" class="screen-body">
+    <div class="calendar-wrap">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+        <span class="cal-month" id="cal-month-label">—</span>
+        <button class="cal-nav-btn" onclick="calNext()">›</button>
+      </div>
+      <div class="cal-stats" id="cal-stats"></div>
+      <div class="cal-weekdays">
+        <div class="cal-wd">пн</div><div class="cal-wd">вт</div><div class="cal-wd">ср</div>
+        <div class="cal-wd">чт</div><div class="cal-wd">пт</div><div class="cal-wd">сб</div>
+        <div class="cal-wd">нд</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--green-light);outline:2px solid var(--green);outline-offset:1px;"></div> Сьогодні</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--green-light);"></div> Виконано</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--amber-light);"></div> Частково</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fde8e8;"></div> Пропуск</div>
+      </div>
+    </div>
+  </div>
+  <div id="history-tab-list" class="screen-body" style="display:none;">
+    <div class="history-list" id="history-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ THEMES ══════════════════ -->
+<div class="screen" id="screen-themes">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <span class="topbar-title">Тема оформлення</span>
+  </div>
+  <div class="screen-body">
+    <div class="theme-section-label">Світлі</div>
+    <div class="theme-grid">
+      <div class="theme-card active" data-t="forest" onclick="applyTheme('forest','Forest')">
+        <div class="swatches"><div class="swatch" style="background:#1D9E75"></div><div class="swatch" style="background:#378ADD"></div><div class="swatch" style="background:#F59E0B"></div></div>
+        <div class="theme-name">Forest</div><div class="theme-desc">за замовчуванням</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="blossom" onclick="applyTheme('blossom','Blossom')">
+        <div class="swatches"><div class="swatch" style="background:#D4537E"></div><div class="swatch" style="background:#ED93B1"></div><div class="swatch" style="background:#F4C0D1"></div></div>
+        <div class="theme-name">Blossom</div><div class="theme-desc">рожева</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="ocean" onclick="applyTheme('ocean','Ocean')">
+        <div class="swatches"><div class="swatch" style="background:#378ADD"></div><div class="swatch" style="background:#85B7EB"></div><div class="swatch" style="background:#E6F1FB"></div></div>
+        <div class="theme-name">Ocean</div><div class="theme-desc">синя</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="violet" onclick="applyTheme('violet','Violet')">
+        <div class="swatches"><div class="swatch" style="background:#534AB7"></div><div class="swatch" style="background:#AFA9EC"></div><div class="swatch" style="background:#EEEDFE"></div></div>
+        <div class="theme-name">Violet</div><div class="theme-desc">фіолетова</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="sunset" onclick="applyTheme('sunset','Sunset')">
+        <div class="swatches"><div class="swatch" style="background:#BA7517"></div><div class="swatch" style="background:#EF9F27"></div><div class="swatch" style="background:#FAEEDA"></div></div>
+        <div class="theme-name">Sunset</div><div class="theme-desc">помаранчева</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="ember" onclick="applyTheme('ember','Ember')">
+        <div class="swatches"><div class="swatch" style="background:#D85A30"></div><div class="swatch" style="background:#F0997B"></div><div class="swatch" style="background:#FAECE7"></div></div>
+        <div class="theme-name">Ember</div><div class="theme-desc">коралова</div>
+        <div class="theme-check">✓</div>
+      </div>
+    </div>
+    <div class="theme-section-label">Темні</div>
+    <div class="theme-grid">
+      <div class="theme-card" data-t="jungle" onclick="applyTheme('jungle','Jungle')" style="background:#0f1a14;border-color:rgba(80,200,120,0.2);">
+        <div class="swatches"><div class="swatch" style="background:#5DCAA5"></div><div class="swatch" style="background:#378ADD"></div><div class="swatch" style="background:#1e3828"></div></div>
+        <div class="theme-name" style="color:#d8f0e0;">Jungle</div><div class="theme-desc" style="color:rgba(255,255,255,0.4);">темно-зелена</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="midnight" onclick="applyTheme('midnight','Midnight')" style="background:#16102a;border-color:rgba(160,130,240,0.2);">
+        <div class="swatches"><div class="swatch" style="background:#AFA9EC"></div><div class="swatch" style="background:#7F77DD"></div><div class="swatch" style="background:#2a1a42"></div></div>
+        <div class="theme-name" style="color:#e8e0ff;">Midnight</div><div class="theme-desc" style="color:rgba(255,255,255,0.4);">темно-фіолетова</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="neonrose" onclick="applyTheme('neonrose','Neon Rose')" style="background:#1e0d18;border-color:rgba(220,100,150,0.2);">
+        <div class="swatches"><div class="swatch" style="background:#ED93B1"></div><div class="swatch" style="background:#D4537E"></div><div class="swatch" style="background:#3a1828"></div></div>
+        <div class="theme-name" style="color:#fde8f0;">Neon Rose</div><div class="theme-desc" style="color:rgba(255,255,255,0.4);">темно-рожева</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="deepocean" onclick="applyTheme('deepocean','Deep Ocean')" style="background:#0d1520;border-color:rgba(60,120,200,0.2);">
+        <div class="swatches"><div class="swatch" style="background:#85B7EB"></div><div class="swatch" style="background:#378ADD"></div><div class="swatch" style="background:#1a2e42"></div></div>
+        <div class="theme-name" style="color:#e0eefa;">Deep Ocean</div><div class="theme-desc" style="color:rgba(255,255,255,0.4);">темно-синя</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="embernight" onclick="applyTheme('embernight','Ember Night')" style="background:#1a1208;border-color:rgba(200,120,20,0.2);">
+        <div class="swatches"><div class="swatch" style="background:#EF9F27"></div><div class="swatch" style="background:#BA7517"></div><div class="swatch" style="background:#382808"></div></div>
+        <div class="theme-name" style="color:#fef0d8;">Ember Night</div><div class="theme-desc" style="color:rgba(255,255,255,0.4);">темно-помаранчева</div>
+        <div class="theme-check">✓</div>
+      </div>
+      <div class="theme-card" data-t="obsidian" onclick="applyTheme('obsidian','Obsidian')" style="background:#1c1c1c;border-color:rgba(200,200,190,0.15);">
+        <div class="swatches"><div class="swatch" style="background:#888780"></div><div class="swatch" style="background:#B4B2A9"></div><div class="swatch" style="background:#2a2a2a"></div></div>
+        <div class="theme-name" style="color:#e8e8e6;">Obsidian</div><div class="theme-desc" style="color:rgba(255,255,255,0.4);">чорно-сіра</div>
+        <div class="theme-check">✓</div>
+      </div>
+    </div>
+    <div style="height:16px;"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ SETTINGS ══════════════════ -->
+<div class="screen" id="screen-settings">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <span class="topbar-title">Налаштування</span>
+  </div>
+  <div class="screen-body">
+    <div class="settings-list">
+      <div class="section-label">Звук</div>
+      <div class="setting-card">
+        <div class="setting-row">
+          <div><div class="setting-label">Звукові сигнали</div><div class="setting-sub">Сигнал між підходами</div></div>
+          <button class="toggle on" id="gs-beep" onclick="toggleGS('gs-beep')"></button>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Сигнал на середині</div><div class="setting-sub">Попередження на 50%</div></div>
+          <button class="toggle on" id="gs-mid" onclick="toggleGS('gs-mid')"></button>
+        </div>
+      </div>
+      <div class="volume-row">
+        <div class="volume-label"><span>Гучність сигналів</span><span class="vol-val" id="vol-display">80%</span></div>
+        <input type="range" min="0" max="100" value="80" id="vol-slider"
+          oninput="document.getElementById('vol-display').textContent=this.value+'%';globalSettings.volume=this.value/100;">
+      </div>
+      <div class="volume-row" style="margin-top:8px;">
+        <div class="volume-label"><span>Гучність музики</span><span class="vol-val" id="mvol-display">70%</span></div>
+        <input type="range" min="0" max="100" value="70" id="mvol-slider"
+          oninput="document.getElementById('mvol-display').textContent=this.value+'%';setMusicVolume(this.value/100);">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ MUSIC ══════════════════ -->
+<div class="screen" id="screen-music">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <span class="topbar-title">Музика</span>
+    <button class="topbar-action" onclick="document.getElementById('file-input').click()">+ Додати</button>
+  </div>
+  <input type="file" id="file-input" multiple accept="audio/*" style="display:none" onchange="handleFileInput(this)">
+  <div class="screen-body">
+    <div class="music-screen">
+      <div id="drop-zone-wrap">
+        <div class="section-label" style="padding-top:8px;">Бібліотека</div>
+        <div class="music-drop-zone" id="drop-zone"
+          onclick="document.getElementById('file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleDrop(event)">
+          <div class="music-drop-icon">🎧</div>
+          <div class="music-drop-title">Додати музику</div>
+          <div class="music-drop-sub">Перетягніть файли або <span>оберіть на пристрої</span></div>
+        </div>
+      </div>
+      <div id="track-list-wrap" style="display:none;">
+        <div class="section-label">Плейлист</div>
+        <div class="edit-card track-list" id="track-list"></div>
+      </div>
+      <div id="fullplayer-wrap" style="display:none;">
+        <div class="fullplayer">
+          <div class="fp-track" id="fp-track-name">—</div>
+          <div class="fp-index" id="fp-track-index">1 / 1</div>
+          <div class="fp-progress" id="fp-progress" onclick="seekMusic(event)">
+            <div class="fp-bar" id="fp-bar"></div>
+          </div>
+          <div class="fp-times"><span id="fp-current">0:00</span><span id="fp-total">0:00</span></div>
+          <div class="fp-controls">
+            <button class="fp-btn" onclick="prevTrack()">⏮</button>
+            <button class="fp-btn main" id="fp-play-btn" onclick="toggleMusicPlay()">▶</button>
+            <button class="fp-btn" onclick="nextTrack()">⏭</button>
+          </div>
+          <div class="fp-mode" id="fp-mode" onclick="cycleMusicMode()">🔁 Повтор плейлисту</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- countdown overlay -->
+<div class="countdown-overlay" id="countdown-overlay">
+  <div class="countdown-num" id="countdown-num">3</div>
+  <div class="countdown-label" id="countdown-label">готуйся</div>
+</div>
+
+</div><!-- /phone -->
+<script src="app.js"></script>
+</body>
+</html>
