@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#1D9E75"/>
+  <!-- circle ring -->
+  <circle cx="256" cy="256" r="160" fill="none" stroke="white" stroke-width="24" stroke-opacity="0.3"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="white" stroke-width="24"
+    stroke-dasharray="754" stroke-dashoffset="188"
+    transform="rotate(-90 256 256)"/>
+  <!-- timer number -->
+  <text x="256" y="288" font-family="system-ui, sans-serif" font-size="140"
+    font-weight="300" fill="white" text-anchor="middle">45</text>
+  <!-- small label -->
+  <text x="256" y="340" font-family="system-ui, sans-serif" font-size="42"
+    fill="white" fill-opacity="0.7" text-anchor="middle">сек</text>
+</svg>
