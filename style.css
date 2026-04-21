@@ -144,27 +144,24 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
-  background: var(--bg-outer, #e8e8ec);
+  background: var(--bg-secondary);
   min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 24px 16px 48px;
+  padding: 0;
 }
 
 .phone {
   width: 100%;
-  max-width: 375px;
+  max-width: 480px;
   background: var(--bg-secondary);
-  border-radius: 40px;
-  border: 0.5px solid rgba(0,0,0,0.12);
   overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08);
-  min-height: 720px;
+  min-height: 100vh;
   position: relative;
 }
 
-.screen { display: none; flex-direction: column; min-height: 720px; }
+.screen { display: none; flex-direction: column; min-height: 100vh; }
 .screen.active { display: flex; }
 
 /* ── TOPBAR ── */
