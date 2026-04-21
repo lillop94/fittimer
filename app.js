@@ -172,7 +172,7 @@ let editingId = null;
 let editMode  = 'timer'; // 'timer' | 'reps'
 const steppers = { prep:10, work:45, rest:15, sets:8, reps:10, bigrest:4, bigresttime:60 };
 const stepMin  = { prep:5, work:5, rest:5, sets:1, reps:1, bigrest:1, bigresttime:10 };
-const stepMax  = { prep:60, work:300, rest:120, sets:20, reps:100, bigrest:10, bigresttime:300 };
+const stepMax  = { prep:60, work:300, rest:300, sets:20, reps:100, bigrest:10, bigresttime:300 };
 
 function openEdit(id) {
   editingId = id;
