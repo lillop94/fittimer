@@ -403,6 +403,7 @@ function toggleTimer() {
   if (isRunning) {
     clearInterval(timerInterval);
     isRunning = false;
+    releaseWakeLock();
 
     if (!phaseAudioEl.paused) phaseAudioEl.pause();
 
@@ -415,6 +416,7 @@ function toggleTimer() {
 
   } else {
     isRunning = true;
+    requestWakeLock();
 
     buttons.forEach(btn => {
       btn.textContent = '⏸';
@@ -504,6 +506,7 @@ function restartTimer() {
 function stopTimer() {
   clearInterval(timerInterval);
   isRunning = false;
+  releaseWakeLock();
 
   const btns = document.querySelectorAll('.play-btn');
 
@@ -1229,6 +1232,35 @@ function handlePhaseTrackChange(newPhase, workout) {
 loadTheme();
 appInit();
 
+
+// ════════════════════════════════════════════════
+//  WAKE LOCK (не давати екрану гаснути під час тренування)
+// ════════════════════════════════════════════════
+let wakeLock = null;
+
+async function requestWakeLock() {
+  if ('wakeLock' in navigator) {
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+    } catch (err) {
+      // Ігноруємо — просто без Wake Lock
+    }
+  }
+}
+
+function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release().catch(() => {});
+    wakeLock = null;
+  }
+}
+
+// Повторно отримуємо Wake Lock якщо сторінка знову стала активною
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && isRunning) {
+    requestWakeLock();
+  }
+});
 
 // ════════════════════════════════════════════════
 //  SERVICE WORKER REGISTRATION
