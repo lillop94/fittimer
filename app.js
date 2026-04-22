@@ -90,24 +90,42 @@ function toggleGS(id) {
 // ════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════
+// Власний стек навігації — жест "назад" повертає на попередній екран
+const screenStack = [];
+
 function show(id) {
+  const current = document.querySelector('.screen.active');
+  if (current && current.id !== id) {
+    screenStack.push(current.id);
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 
-  // Пушимо в історію браузера — щоб жест "назад" працював
-  if (id === 'screen-home') {
-    history.replaceState({ screen: id }, '', '');
-  } else {
-    history.pushState({ screen: id }, '', '');
+  // Для браузера завжди тримаємо один запис — щоб жест назад спрацьовував
+  history.replaceState(null, '', '');
+}
+
+function goBack() {
+  if (screenStack.length > 0) {
+    const prev = screenStack.pop();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(prev).classList.add('active');
   }
+  // Якщо стек порожній — закриває додаток (стандартна поведінка)
 }
 
 // Обробник жесту "назад"
-window.addEventListener('popstate', (e) => {
-  const screenId = e.state?.screen || 'screen-home';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
+window.addEventListener('popstate', () => {
+  if (screenStack.length > 0) {
+    goBack();
+    // Повертаємо запис щоб наступний жест теж спрацював
+    history.pushState(null, '', '');
+  }
+  // Якщо стек порожній — браузер закриває додаток сам
 });
+
+// Додаємо початковий запис щоб перший жест "назад" спрацював
+history.pushState(null, '', '');
 
 async function openWorkouts() {
   renderWorkoutList();
@@ -405,14 +423,14 @@ function updateDisplay() {
   if (pb) {
     pb.classList.toggle('prep-mode', phase==='prep' && isRunning);
     pb.classList.toggle('running', (phase==='rest'||phase==='bigrest') && isRunning);
-    if (isRunning && phase==='work') { pb.classList.remove('prep-mode','running'); pb.style.background='#1D9E75'; pb.style.borderColor='#1D9E75'; }
+    if (isRunning && phase==='work') { pb.classList.remove('prep-mode','running'); }
     else if (!isRunning) { pb.style.background=''; pb.style.borderColor=''; }
   }
   updateDots();
 }
 
 function toggleTimer() {
-  const buttons = document.querySelectorAll('.play-btn');
+  const playBtn = document.getElementById('play-btn');
 
   if (isRunning) {
     clearInterval(timerInterval);
@@ -421,20 +439,18 @@ function toggleTimer() {
 
     if (!phaseAudioEl.paused) phaseAudioEl.pause();
 
-    buttons.forEach(btn => {
-      btn.textContent = '▶';
-      btn.classList.remove('running','prep-mode');
-      btn.style.background = '';
-      btn.style.borderColor = '';
-    });
+    if (playBtn) {
+      playBtn.textContent = '▶';
+      playBtn.classList.remove('running','prep-mode');
+      playBtn.style.background = '';
+      playBtn.style.borderColor = '';
+    }
 
   } else {
     isRunning = true;
     requestWakeLock();
 
-    buttons.forEach(btn => {
-      btn.textContent = '⏸';
-    });
+    if (playBtn) playBtn.textContent = '⏸';
 
     timerInterval = setInterval(tick, 1000);
 
@@ -522,14 +538,13 @@ function stopTimer() {
   isRunning = false;
   releaseWakeLock();
 
-  const btns = document.querySelectorAll('.play-btn');
-
-  btns.forEach(btn => {
-    btn.textContent = '▶';
-    btn.classList.remove('running', 'prep-mode');
-    btn.style.background = '';
-    btn.style.borderColor = '';
-  });
+  const playBtn = document.getElementById('play-btn');
+  if (playBtn) {
+    playBtn.textContent = '▶';
+    playBtn.classList.remove('running', 'prep-mode');
+    playBtn.style.background = '';
+    playBtn.style.borderColor = '';
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -1246,8 +1261,6 @@ function handlePhaseTrackChange(newPhase, workout) {
 loadTheme();
 appInit();
 
-// Ініціалізуємо стартовий стан історії
-history.replaceState({ screen: 'screen-home' }, '', '');
 
 
 // ════════════════════════════════════════════════
