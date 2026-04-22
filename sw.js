@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fittimer-v5';
+const CACHE_NAME = 'fittimer-v0.1';
 const ASSETS = [
   '/',
   '/index.html',
