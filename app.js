@@ -90,52 +90,22 @@ function toggleGS(id) {
 // ════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════
-// Навігація — жест "назад" повертає на попередній екран
-// show() — для переходів вперед (пушить в стек)
-// showBack() — для кнопок ‹ (не пушить в стек)
-const screenStack = [];
-
-function _activateScreen(id) {
+function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-function show(id) {
-  const current = document.querySelector('.screen.active');
-  if (current && current.id !== id) {
-    screenStack.push(current.id);
-  }
-  _activateScreen(id);
-}
-
-function showBack(id) {
-  // Очищаємо стек до потрібного екрану (або повністю якщо не знайдено)
-  const idx = screenStack.lastIndexOf(id);
-  if (idx !== -1) {
-    screenStack.splice(idx);
-  } else {
-    screenStack.length = 0;
-  }
-  _activateScreen(id);
-}
-
-function goBack() {
-  if (screenStack.length > 0) {
-    _activateScreen(screenStack.pop());
-    history.pushState(null, '', '');
-  }
-}
-
-// Обробник жесту "назад"
-window.addEventListener('popstate', () => {
-  if (screenStack.length > 0) {
-    goBack();
-  }
-  // Якщо стек порожній — браузер закриває додаток
-});
-
-// Початковий запис щоб перший жест спрацював
+// Жест "назад" — натискає кнопку ‹ на поточному екрані якщо вона є
 history.pushState(null, '', '');
+window.addEventListener('popstate', () => {
+  const activeScreen = document.querySelector('.screen.active');
+  const backBtn = activeScreen ? activeScreen.querySelector('.back-btn') : null;
+  if (backBtn) {
+    backBtn.click();
+  }
+  // Якщо кнопки немає (головний екран) — браузер закриває додаток
+  history.pushState(null, '', '');
+});
 
 async function openWorkouts() {
   renderWorkoutList();
