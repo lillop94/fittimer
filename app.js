@@ -93,7 +93,21 @@ function toggleGS(id) {
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+
+  // Пушимо в історію браузера — щоб жест "назад" працював
+  if (id === 'screen-home') {
+    history.replaceState({ screen: id }, '', '');
+  } else {
+    history.pushState({ screen: id }, '', '');
+  }
 }
+
+// Обробник жесту "назад"
+window.addEventListener('popstate', (e) => {
+  const screenId = e.state?.screen || 'screen-home';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+});
 
 async function openWorkouts() {
   renderWorkoutList();
@@ -1231,6 +1245,9 @@ function handlePhaseTrackChange(newPhase, workout) {
 // ════════════════════════════════════════════════
 loadTheme();
 appInit();
+
+// Ініціалізуємо стартовий стан історії
+history.replaceState({ screen: 'screen-home' }, '', '');
 
 
 // ════════════════════════════════════════════════
