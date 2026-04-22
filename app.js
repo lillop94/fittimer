@@ -102,9 +102,10 @@ window.addEventListener('popstate', () => {
   const backBtn = activeScreen ? activeScreen.querySelector('.back-btn') : null;
   if (backBtn) {
     backBtn.click();
+    // Пушимо новий запис щоб наступний жест теж спрацював
+    history.pushState(null, '', '');
   }
   // Якщо кнопки немає (головний екран) — браузер закриває додаток
-  history.pushState(null, '', '');
 });
 
 async function openWorkouts() {
@@ -401,10 +402,10 @@ function updateDisplay() {
   document.getElementById('bigrest-banner').classList.toggle('visible', phase==='bigrest');
   const pb = document.getElementById('play-btn');
   if (pb) {
-    pb.classList.toggle('prep-mode', phase==='prep' && isRunning);
-    pb.classList.toggle('running', (phase==='rest'||phase==='bigrest') && isRunning);
-    if (isRunning && phase==='work') { pb.classList.remove('prep-mode','running'); }
-    else if (!isRunning) { pb.style.background=''; pb.style.borderColor=''; }
+    // Кнопка завжди в кольорі теми — без зміни кольору між фазами
+    pb.classList.remove('prep-mode', 'running');
+    pb.style.background = '';
+    pb.style.borderColor = '';
   }
   updateDots();
 }
