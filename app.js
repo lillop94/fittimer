@@ -90,41 +90,51 @@ function toggleGS(id) {
 // ════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════
-// Власний стек навігації — жест "назад" повертає на попередній екран
+// Навігація — жест "назад" повертає на попередній екран
+// show() — для переходів вперед (пушить в стек)
+// showBack() — для кнопок ‹ (не пушить в стек)
 const screenStack = [];
+
+function _activateScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
 function show(id) {
   const current = document.querySelector('.screen.active');
   if (current && current.id !== id) {
     screenStack.push(current.id);
   }
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  _activateScreen(id);
+}
 
-  // Для браузера завжди тримаємо один запис — щоб жест назад спрацьовував
-  history.replaceState(null, '', '');
+function showBack(id) {
+  // Очищаємо стек до потрібного екрану (або повністю якщо не знайдено)
+  const idx = screenStack.lastIndexOf(id);
+  if (idx !== -1) {
+    screenStack.splice(idx);
+  } else {
+    screenStack.length = 0;
+  }
+  _activateScreen(id);
 }
 
 function goBack() {
   if (screenStack.length > 0) {
-    const prev = screenStack.pop();
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(prev).classList.add('active');
+    _activateScreen(screenStack.pop());
+    history.pushState(null, '', '');
   }
-  // Якщо стек порожній — закриває додаток (стандартна поведінка)
 }
 
 // Обробник жесту "назад"
 window.addEventListener('popstate', () => {
   if (screenStack.length > 0) {
     goBack();
-    // Повертаємо запис щоб наступний жест теж спрацював
-    history.pushState(null, '', '');
   }
-  // Якщо стек порожній — браузер закриває додаток сам
+  // Якщо стек порожній — браузер закриває додаток
 });
 
-// Додаємо початковий запис щоб перший жест "назад" спрацював
+// Початковий запис щоб перший жест спрацював
 history.pushState(null, '', '');
 
 async function openWorkouts() {
@@ -450,7 +460,7 @@ function toggleTimer() {
     isRunning = true;
     requestWakeLock();
 
-    if (playBtn) playBtn.textContent = '⏸';
+    if (playBtn) playBtn.textContent = '||';
 
     timerInterval = setInterval(tick, 1000);
 
@@ -1116,10 +1126,10 @@ function updateMusicUI() {
   document.getElementById('fp-current').textContent = fmtTime(t);
   document.getElementById('fp-total').textContent   = fmtTime(d);
   const playing = musicIsPlaying && !audioEl.paused;
-  document.getElementById('fp-play-btn').textContent   = playing ? '⏸' : '▶';
-  document.getElementById('mini-play-btn').textContent = playing ? '⏸' : '▶';
+  document.getElementById('fp-play-btn').textContent   = playing ? '||' : '▶';
+  document.getElementById('mini-play-btn').textContent = playing ? '||' : '▶';
   const rmpb = document.getElementById('reps-mini-play-btn');
-  if (rmpb) rmpb.textContent = playing ? '⏸' : '▶';
+  if (rmpb) rmpb.textContent = playing ? '||' : '▶';
   if (tracks[currentTrack]) {
     const name = tracks[currentTrack].name;
     document.getElementById('fp-track-name').textContent    = name;
