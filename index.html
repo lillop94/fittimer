@@ -81,7 +81,7 @@
 <!-- ══════════════════ WORKOUTS ══════════════════ -->
 <div class="screen" id="screen-workouts">
   <div class="topbar">
-    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <button class="back-btn" onclick="showBack('screen-home')">‹</button>
     <span class="topbar-title">Тренування</span>
     <button class="topbar-action" onclick="openEdit(null)">+ Нове</button>
   </div>
@@ -93,7 +93,7 @@
 <!-- ══════════════════ EDIT ══════════════════ -->
 <div class="screen" id="screen-edit">
   <div class="topbar">
-    <button class="back-btn" onclick="show('screen-workouts')">‹</button>
+    <button class="back-btn" onclick="showBack('screen-workouts')">‹</button>
     <span class="topbar-title" id="edit-title">Нове тренування</span>
     <button class="topbar-action" onclick="saveWorkout()">Зберегти</button>
   </div>
@@ -262,7 +262,7 @@
 <!-- ══════════════════ TIMER ══════════════════ -->
 <div class="screen" id="screen-timer">
   <div class="topbar">
-    <button class="back-btn" onclick="stopTimer();stopMusic();stopPhaseAudio();show('screen-workouts')">‹</button>
+    <button class="back-btn" onclick="stopTimer();stopMusic();stopPhaseAudio();showBack('screen-workouts')">‹</button>
     <span class="topbar-title" id="timer-title">Таймер</span>
   </div>
   <div class="timer-screen">
@@ -276,7 +276,7 @@
       <span style="font-size:16px;">🎵</span>
       <span class="music-track-name" id="mini-track-name">—</span>
       <button class="music-ctrl" onclick="prevTrack()">⏮</button>
-      <button class="music-ctrl" id="mini-play-btn" onclick="toggleMusicPlay()">⏸</button>
+      <button class="music-ctrl" id="mini-play-btn" onclick="toggleMusicPlay()">||</button>
       <button class="music-ctrl" onclick="nextTrack()">⏭</button>
     </div>
     <div class="timer-circle-wrap">
@@ -307,7 +307,7 @@
 <!-- ══════════════════ REPS ══════════════════ -->
 <div class="screen" id="screen-reps">
   <div class="topbar">
-    <button class="back-btn" onclick="stopRepsTimer();stopMusic();show('screen-workouts')">‹</button>
+    <button class="back-btn" onclick="stopRepsTimer();stopMusic();showBack('screen-workouts')">‹</button>
     <span class="topbar-title" id="reps-title">Таймер</span>
   </div>
   <div class="reps-screen">
@@ -320,7 +320,7 @@
       <span style="font-size:16px;">🎵</span>
       <span class="music-track-name" id="reps-mini-track-name">—</span>
       <button class="music-ctrl" onclick="prevTrack()">⏮</button>
-      <button class="music-ctrl" id="reps-mini-play-btn" onclick="toggleMusicPlay()">⏸</button>
+      <button class="music-ctrl" id="reps-mini-play-btn" onclick="toggleMusicPlay()">||</button>
       <button class="music-ctrl" onclick="nextTrack()">⏭</button>
     </div>
     <div class="reps-counter-wrap">
@@ -368,14 +368,14 @@
       </div>
     </div>
     <button class="done-btn" onclick="replayWorkout()">↺ Ще раз</button>
-    <button class="done-btn secondary" onclick="show('screen-workouts')">← До тренувань</button>
+    <button class="done-btn secondary" onclick="showBack('screen-workouts')">← До тренувань</button>
   </div>
 </div>
 
 <!-- ══════════════════ HISTORY ══════════════════ -->
 <div class="screen" id="screen-history">
   <div class="topbar">
-    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <button class="back-btn" onclick="showBack('screen-home')">‹</button>
     <span class="topbar-title">Історія</span>
     <button class="topbar-action" style="color:var(--red);font-size:12px;" onclick="clearHistory()">Очистити</button>
   </div>
@@ -413,7 +413,7 @@
 <!-- ══════════════════ THEMES ══════════════════ -->
 <div class="screen" id="screen-themes">
   <div class="topbar">
-    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <button class="back-btn" onclick="showBack('screen-home')">‹</button>
     <span class="topbar-title">Тема оформлення</span>
   </div>
   <div class="screen-body">
@@ -490,7 +490,7 @@
 <!-- ══════════════════ SETTINGS ══════════════════ -->
 <div class="screen" id="screen-settings">
   <div class="topbar">
-    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <button class="back-btn" onclick="showBack('screen-home')">‹</button>
     <span class="topbar-title">Налаштування</span>
   </div>
   <div class="screen-body">
@@ -523,7 +523,7 @@
 <!-- ══════════════════ MUSIC ══════════════════ -->
 <div class="screen" id="screen-music">
   <div class="topbar">
-    <button class="back-btn" onclick="show('screen-home')">‹</button>
+    <button class="back-btn" onclick="showBack('screen-home')">‹</button>
     <span class="topbar-title">Музика</span>
     <button class="topbar-action" onclick="document.getElementById('file-input').click()">+ Додати</button>
   </div>
